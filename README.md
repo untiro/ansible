@@ -22,12 +22,14 @@ Requires: paramiko, pycrypto, setuptools, PyYAML, jinja2
 3. Spin up clear CentOS7 VM using vagrant (“vagrant init sbeliakou/centos-7.3-minimal”). Verify connectivity to the host using ssh keys (user: vagrant)
 <img src="day-1/1.png">
 4. Create ansible inventory file (name: [inventory](day-1/inventory) ) with remote host connection details:
-Remote VM hostname/ip/port
-Remote ssh login username
-Connection type
+- Remote VM hostname/ip/port
+- Remote ssh login username
+- Connection type
+
 ```
 ansible	ansible_port=22	ansible_host=192.168.56.10	ansible_connection=ssh	ansible_user=vagrant	ansible_ssh_private_key_file=.vagrant/machines/ansible/virtualbox/private_key
 ```
+
 5. Test ansible connectivity to the VM with ad-hoc command: 
 
 ```
