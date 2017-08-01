@@ -1,0 +1,15 @@
+- name: Get vm host parameters
+  hosts: ansible
+
+  tasks:
+  - name: Number of CPUs
+    debug: var=ansible_processor_cores
+
+  - name: Host name
+    debug: var=ansible_nodename
+
+  - name: Host IP(s)
+    debug: var=ansible_all_ipv4_addresses
+
+  - name: Total RAM
+    debug: var=ansible_memtotal_mb

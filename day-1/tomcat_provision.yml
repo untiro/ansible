@@ -1,0 +1,114 @@
+- name: Script for tomcat provision
+  hosts: ansible
+  become: true
+  become_user: root
+
+  vars:
+    java_version: "1.8.0"
+    tomcat_version: "8.0.45"
+    tomcat_user: tomcat_as
+    tomcat_group: tomcat_as_group
+
+  tasks:
+  - name: Get Java v{{ java_version }} installed
+    yum: 
+      name: java-{{ java_version }}-openjdk-devel.x86_64
+      state: present
+
+  - name: Creating group for Tomcat user {{ tomcat_group }}
+    group:
+      name: "{{ tomcat_group }}"
+      state: present
+
+  - name: Creating user for Tomcat {{ tomcat_user }}
+    user:
+      name: "{{ tomcat_user }}"
+      shell: /bin/bash
+      groups: "{{ tomcat_group }}"
+      state: present
+
+  - name: Creating Tomcat directory
+    file:
+      path: /opt/tomcat/{{ tomcat_version }}
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      state: directory
+      mode: 0755
+
+  - name: Downloading Tomcat binaries
+    get_url:
+      url: http://archive.apache.org/dist/tomcat/tomcat-8/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz
+      dest: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
+
+  - name: Unpacking Tomcat binaries
+    unarchive:
+      src: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
+      dest: /tmp/
+      owner: "{{ tomcat_user }}"
+      group: "{{ tomcat_group }}"
+      mode: 0755
+      remote_src: True
+
+  - name: Copying systemd unit-file
+    copy:
+      src: /home/student/cm/ansible/day-1/tomcat.service
+      dest: /etc/systemd/system/tomcat.service
+
+  - name: Moving Tomcat binaries
+    shell:
+      cp -r /tmp/apache-tomcat-{{ tomcat_version }}/* /opt/tomcat/{{ tomcat_version }}
+      
+      chown -R {{ tomcat_user }}:{{ tomcat_group }} /opt/tomcat/{{ tomcat_version }}
+
+  - name: Makins changes in tomcat.service
+    lineinfile:
+      path: /etc/systemd/system/tomcat.service
+      regexp: '^ExecStart='
+      line: 'ExecStart=/opt/tomcat/{{ tomcat_version }}/bin/startup.sh'
+  - name: Makins changes in tomcat.service
+    lineinfile:
+      path: /etc/systemd/system/tomcat.service
+      regexp: '^ExecStop='
+      line: 'ExecStop=/opt/tomcat/{{ tomcat_version }}/bin/startup.sh'
+  - name: Makins changes in tomcat.service
+    lineinfile:
+      path: /etc/systemd/system/tomcat.service
+      regexp: '^User='
+      line: 'User={{ tomcat_user }}'
+  - name: Makins changes in tomcat.service
+    lineinfile:
+      path: /etc/systemd/system/tomcat.service
+      regexp: '^Group='
+      line: 'Group={{ tomcat_group }}'
+    
+  - name: Reload systemd tomcat unit file
+    shell:
+      systemctl daemon-reload
+
+  - name: Enabling and starting  Tomcat service
+    service:
+      name: tomcat
+      state: started
+      enabled: yes
+
+  - name: Check Tomcat running by systemctl
+    shell:
+      systemctl status tomcat | grep Active | sed -n -e 's/^.*; //p'
+
+  - name: Check Tomcat running by curl
+    shell:
+      curl -IL 127.0.0.1:8080
+
+  - uri:
+      url: http://127.0.0.1:8080
+      return_content: yes
+    register: webpage
+    no_log: true
+
+  - name: Fail if Apache Tomcat is not in the page content
+    fail:
+    when: "'Apache Tomcat' not in webpage.content"
+
+
+
+
