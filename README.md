@@ -100,16 +100,21 @@ Java can be installed from CentOS Repositories
 
 8. Verification Procedure: playbook will be checked by instructor’s CI system as follows:
 
-  8.1. Connect to student’s host by ssh (username “student”) with own ssh key.
+8.1. Connect to student’s host by ssh (username “student”) with own ssh key.
 
-  8.2 Check the version of ansible installed on the system (as mentioned in point 1)
+8.2 Check the version of ansible installed on the system (as mentioned in point 1)
 
-  8.3 Go into the folder mentioned in point 2
+8.3 Go into the folder mentioned in point 2
 
-  8.4 Destroy/Launch VM: vagrant destroy && vagrant up
 
-  8.5 Execute VM provisioning: ansible-playbook [tomcat_provision.yml](day-1/tomcat_provision.yml) -i [inventory](day-1/inventory) -vv 
+8.4 Destroy/Launch VM: vagrant destroy && vagrant up
 
-  8.6 If previous steps are done successfully, instructor will check the report
+8.5 Execute VM provisioning: ansible-playbook [tomcat_provision.yml](day-1/tomcat_provision.yml) -i [inventory](day-1/inventory) -vv 
+
+8.6 If previous steps are done successfully, instructor will check the report
+
+<img src="day-1/4.png">
+<img src="day-1/5.png">
+<img src="day-1/6.png">
 
 9. Feedback: report issues/problems you had during the development of playbook and time spent for development.
